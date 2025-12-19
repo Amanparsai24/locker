@@ -1,0 +1,131 @@
+/* -------------------------------------------------- */
+/* GLOBAL CSS RESET + TAILWIND + FONT FIX            */
+/* -------------------------------------------------- */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Root Styling */
+:root {
+  --text-dark: #1f1f1f;
+  --text-light: #ffffff;
+  --bg-light: #fafafa;
+  --bg-dark: #1a1a1a;
+  --primary-gray: #f5f5f5;
+}
+
+html {
+  font-family: Poppins, sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  min-height: 100vh;
+}
+
+/* -------------------------------------------------- */
+/* GENERAL ELEMENTS                                   */
+/* -------------------------------------------------- */
+a {
+  /* font-weight: 600; */
+  color: #383a54;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #2c2d40;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+/* -------------------------------------------------- */
+/* ANIMATIONS                                         */
+/* -------------------------------------------------- */
+.fade-slide {
+  opacity: 0;
+  transform: translateY(-10px);
+  animation: fadeSlide .25s ease forwards;
+}
+
+@keyframes fadeSlide {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-4px);} 
+  to { opacity: 1; transform: translateY(0);} 
+}
+
+.animate-slideDown {
+  animation: slideDown 0.25s ease-out;
+}
+
+/* -------------------------------------------------- */
+/* TOPBAR FIXES                                       */
+/* -------------------------------------------------- */
+.topbar-profile-btn {
+  background-color: var(--primary-gray);
+  border-radius: 8px;
+  padding: 4px 8px;
+}
+
+.topbar-profile-btn:hover {
+  background-color: #e8e8e8;
+}
+
+.topbar-dropdown {
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e5e5e5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.topbar-dropdown button:hover {
+  background-color: #f3f3f3;
+}
+
+/* -------------------------------------------------- */
+/* SIDEBAR FIXES                                       */
+/* -------------------------------------------------- */
+.sidebar-active {
+  background-color: #e6f0ff !important;
+  color: #1d4ed8 !important;
+  border-left: 4px solid #1d4ed8 !important;
+}
+
+.sidebar-hover:hover {
+  background-color: #f3f3f3;
+}
+
+
+/* globals.css ya tailwind.css me add karo */
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.3s ease-out forwards;
+}
+
+@keyframes slideOut {
+  from { transform: translateX(0); opacity: 1; }
+  to { transform: translateX(100%); opacity: 0; }
+}
+
+.animate-slide-out {
+  animation: slideOut 0.3s ease-in forwards;
+}
+
