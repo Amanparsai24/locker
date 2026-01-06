@@ -40,7 +40,7 @@ const ProtectedLayout = ({ children }: Props) => {
           toggleCollapse={toggleCollapse}
           collapsed={collapsed}
         />
-        <main className="flex-1 p-6 overflow-auto bg-gray-50">{children}</main>
+        <main className="flex-1 p-6 overflow-auto bg-gray-100">{children}</main>
       </div>
     </div>
   );

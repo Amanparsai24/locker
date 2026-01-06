@@ -22,7 +22,7 @@ function App() {
       })
       .catch(() => logout());
 
-  }, []);
+  }, [token, setUser, logout]);
 
   return (
     <>
