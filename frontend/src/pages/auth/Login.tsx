@@ -32,7 +32,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await WebService.postAPI<LoginFormData, LoginResponse>({
-        action: "auth/login",
+        action: "users/login",
         body: data,
         id: "login-btn",
       });

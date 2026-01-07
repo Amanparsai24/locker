@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
     if (!token) return;
 
-    WebService.getAPI<{ result: User }>("auth/me")
+    WebService.getAPI<{ result: User }>("users/me")
       .then((res) => {
         setUser(res.result, token);
       })
