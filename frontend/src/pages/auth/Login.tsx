@@ -37,6 +37,7 @@ const Login = () => {
         id: "login-btn",
       });
       sessionStorage.setItem("token", res.token);
+      sessionStorage.setItem("user", JSON.stringify(res.result));
       setUser(res.result, res.token);
       toast.success(res.message || "Login successful");
       navigate("/dashboard");

@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/Lock.png";
 import logo2 from "../../assets/Locker.png";
-import { Home, DollarSign, CreditCard, CheckSquare } from "lucide-react";
+import { Home, User , DollarSign, CreditCard, CheckSquare } from "lucide-react";
 import { useState } from "react";
 
 interface SidebarProps {
@@ -20,6 +20,7 @@ const Sidebar = ({ closeSidebar, collapsed }: SidebarProps) => {
 
   const menuIcons = {
     Dashboard: Home,
+    Users: User,
     Expenses: DollarSign,
     Assets: CreditCard,
     "Daily Tasks": CheckSquare,
@@ -27,6 +28,7 @@ const Sidebar = ({ closeSidebar, collapsed }: SidebarProps) => {
 
   const menus = [
     { name: 'Dashboard', path: '/' },
+    { name: 'Users', path: '/users' },
     {
       name: 'Expenses',
       icon: 'Expenses',

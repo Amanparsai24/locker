@@ -4,6 +4,7 @@ import ApiResponse from "../../utils/ApiResponse.js";
 import ApiError from "../../utils/ApiError.js";
 import * as UserService from "./user.service.js";
 import Helper from "../../utils/helper.js";
+import { UserRole } from "./user.model.js";
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -12,7 +13,7 @@ export const signup = async (req: Request, res: Response, next: NextFunction) =>
         if (!name || !email || !password) {
             throw new ApiError("All fields are required", 400);
         }
-        const hashPassword = await bcrypt.hash(password, 6);
+        const hashPassword = await bcrypt.hash(password, 10);
         // check if user already exists
         const existingUser = await UserService.findUserByEmail(email);
         if (existingUser) {
@@ -63,6 +64,58 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
         }
         const safeUser = Helper.sanitizeUser(user);
         res.status(200).json(ApiResponse.success("User profile fetched successfully", safeUser));
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+export const createUser = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const { name, email, password, role, phone, photo } = req.body;
+        // 🔹 basic validation
+        if (!name) throw new ApiError("Name is required", 400);
+        if (!email) throw new ApiError("Email is required", 400);
+        if (!password) throw new ApiError("Password is required", 400);
+        if (!phone) throw new ApiError("Phone is required", 400);
+        if (role && !Object.values(UserRole).includes(role)) {
+            throw new ApiError("Invalid role value", 400);
+        }
+        const hashPassword = await bcrypt.hash(password, 10);
+
+        const user = await UserService.createUser({
+            name,
+            email,
+            password: hashPassword,
+            role,
+            phone,
+            photo, // sirf filename / path
+        });
+
+        const safeUser = Helper.sanitizeUser(user);
+        res.status(200).json(ApiResponse.success("User added successfully", safeUser));
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export const uploadUserImage = (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        if (!req.file) {
+            return res.status(400).json({
+                status: 400,
+                message: "File required",
+            });
+        }
+
+        const result = {
+            filename: req.file.filename,
+            path: `/uploads/users/${req.file.filename}`,
+        };
+        res.status(200).json(ApiResponse.success("User profile uploaded successfully", result));
     } catch (error) {
         next(error);
     }

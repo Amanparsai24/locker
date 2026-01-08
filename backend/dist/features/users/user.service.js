@@ -1,4 +1,4 @@
-import { User } from "./user.model.js";
+import { User, UserRole } from "./user.model.js";
 import jwt from "jsonwebtoken";
 import { ENV } from "../../config/env.js";
 export const signupUser = async (name, email, hashedPassword) => {
@@ -14,4 +14,15 @@ export const findUserById = async (id) => {
 export const generateToken = async (user) => {
     const token = jwt.sign({ id: user.id, role: user.role }, ENV.JWT_SECRET, { expiresIn: "1d" });
     return token;
+};
+export const createUser = (data) => {
+    return User.create({
+        name: data.name,
+        email: data.email,
+        password: data.password,
+        role: data.role ?? UserRole.USER,
+        phone: data.phone,
+        photo: data.photo,
+        status: data.status ?? 1,
+    });
 };

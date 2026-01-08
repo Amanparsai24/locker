@@ -9,6 +9,7 @@ export interface PropData<Req = Record<string, unknown>, Res = Record<string, un
 }
 
 const WebService = {
+
   getBaseUrl() {
     return "http://localhost:5000/api/"; // backend base URL
   },
@@ -91,7 +92,56 @@ const WebService = {
       headers: this.getHeaders(),
     });
     return res.data;
+  },
+
+  async fileUploadAPI<Req = Record<string, unknown>, Res = Record<string, unknown>>(
+    props: {
+      action: string;
+      file: File;
+      key?: string;          // default "file"
+      id?: string;
+      onProgress?: (p: number) => void;
+    }
+  ): Promise<Res> {
+
+    this.addLoader(props.id);
+
+    try {
+      const formData = new FormData();
+
+      // ✅ append file
+      formData.append(props.key || "file", props.file);
+
+      const res = await axios.post<Res>(
+        this.getBaseUrl() + props.action,
+        formData,
+        {
+          headers: {
+            Authorization: this.getHeaders().Authorization,
+          },
+          maxBodyLength: Infinity,
+          maxContentLength: Infinity,
+          onUploadProgress: (e) => {
+            if (e.total && props.onProgress) {
+              const percent = Math.round(
+                (e.loaded * 100) / e.total
+              );
+              props.onProgress(percent);
+            }
+          },
+        }
+      );
+
+      return res.data;
+
+    } catch (err) {
+      this.errorHandler(err);
+      throw err;
+    } finally {
+      this.removeLoader(props.id);
+    }
   }
+
 };
 
 export default WebService;

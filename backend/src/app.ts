@@ -11,6 +11,9 @@ const app: Application = express();
 app.use(cors());
 app.use(bodyParser.json());
 
+// File upload
+app.use("/uploads", express.static("uploads"));
+
 // Routes
 app.use("/api/users", userRoutes);
 
