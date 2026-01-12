@@ -4,7 +4,8 @@ import ApiResponse from "../../utils/ApiResponse.js";
 import ApiError from "../../utils/ApiError.js";
 import * as UserService from "./user.service.js";
 import Helper from "../../utils/helper.js";
-import { UserRole } from "./user.model.js";
+import { User, UserRole } from "./user.model.js";
+import { Op } from "sequelize";
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -120,3 +121,91 @@ export const uploadUserImage = (req: Request, res: Response, next: NextFunction)
         next(error);
     }
 };
+
+export const getUserListold = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+        // Step 1: Logged-in user check (JWT se)
+        const userId = (req as any).user?.id;
+        if (!userId) throw new ApiError("Unauthorized access", 401);
+
+        // Step 5: DB call
+        // const data = await UserService.getUserList({
+        //     page: Number(req.query.page),
+        //     limit: Number(req.query.limit),
+        //     search: req.query.search as string,
+        // });
+
+        // Step 6: Response
+        // res.status(200).json({
+        //     success: true,
+        //     message: "User list fetched successfully",
+        //     data,
+        // });
+
+    } catch (error) {
+        next(error);
+    }
+};
+
+export const getUserList = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+
+        const {
+            limit = 10,
+            offset = 0,
+            sort = 'created_at',
+            order = 'ASC',
+            keyword = '',
+            startDate = null,
+            endDate = null
+        } = req.query
+        const parsedLimit  = Number(limit)
+        const parsedOffset = Number(offset) * parsedLimit
+
+        // Build where clause for keyword search
+        let where: any = {}
+        if (keyword) {
+            where = {
+                [Op.or]: [
+                    { name: { [Op.like]: `%${keyword}%` } },
+                    { code: { [Op.like]: `%${keyword}%` } },
+                    { color_code: { [Op.like]: `%${keyword}%` } }
+                ]
+            }
+        }
+
+        // Exclude deleted lounges
+        where.status = { [Op.ne]: 'DELETED' }
+
+        // Add date range filter if provided
+        if (startDate || endDate) {
+            where.created_at = {}
+            if (startDate && !isNaN(Date.parse(startDate as string))) {
+                where.created_at[Op.gte] = new Date(startDate as string)
+            }
+            if (endDate && !isNaN(Date.parse(endDate as string))) {
+                where.created_at[Op.lte] = new Date(endDate as string)
+            }
+            if (Object.keys(where.created_at).length === 0) {
+                delete where.created_at
+            }
+        }
+
+        const users = await User.findAndCountAll({
+            where,
+            limit: parsedLimit,
+            offset: parsedOffset,
+            order: [[sort as string, (order as string).toUpperCase() === 'ASC' ? 'ASC' : 'DESC']]
+        })
+
+        const nextOffset = parsedOffset + parsedLimit < users.count ? Number(offset) + 1 : -1
+
+        return res.status(200).json({
+            count: users.count,
+            nextOffset,
+            users: users.rows
+        })
+    } catch (error) {
+        return res.status(500).json({ message: 'Failed to fetch users', error })
+    }
+}
