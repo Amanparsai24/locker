@@ -1,6 +1,7 @@
 import { User, UserRole } from "./user.model.js";
 import jwt from "jsonwebtoken";
 import { ENV } from "../../config/env.js";
+import { Op } from "sequelize";
 
 interface CreateUserInput {
     name: string;
@@ -42,4 +43,77 @@ export const createUser = (data: CreateUserInput) => {
     });
 };
 
+interface GetUserListInput {
+    limit?: number;
+    offset?: number;
+    sort?: string;
+    order?: "ASC" | "DESC";
+    keyword?: string;
+    startDate?: string | null;
+    endDate?: string | null;
+}
 
+export const getUserListService = async (params: GetUserListInput) => {
+
+    const {
+        limit = 10,
+        offset = 0,
+        sort = "created_at",
+        order = "ASC",
+        keyword = "",
+        startDate = null,
+        endDate = null,
+    } = params;
+
+    const parsedLimit = Number(limit);
+    const parsedOffset = Number(offset) * parsedLimit;
+
+    /* ---------------- WHERE CLAUSE ---------------- */
+    const where: any = {
+        status: { [Op.eq]: 1 },
+        role: { [Op.ne]: "SUPER_ADMIN" },
+
+    };
+
+    // 🔍 Keyword search
+    if (keyword) {
+        where[Op.or] = [
+            { name: { [Op.like]: `%${keyword}%` } },
+            { email: { [Op.like]: `%${keyword}%` } },
+        ];
+    }
+
+    // 📅 Date range filter
+    if (startDate || endDate) {
+        where.created_at = {};
+
+        if (startDate && !isNaN(Date.parse(startDate))) {
+            where.created_at[Op.gte] = new Date(startDate);
+        }
+
+        if (endDate && !isNaN(Date.parse(endDate))) {
+            where.created_at[Op.lte] = new Date(endDate);
+        }
+
+        if (Object.keys(where.created_at).length === 0) {
+            delete where.created_at;
+        }
+    }
+
+    /* ---------------- DB QUERY ---------------- */
+    const result = await User.findAndCountAll({
+        where,
+        limit: parsedLimit,
+        offset: parsedOffset,
+        order: [[sort, order === "ASC" ? "ASC" : "DESC"]],
+    });
+
+    const nextOffset =
+        parsedOffset + parsedLimit < result.count ? offset + 1 : -1;
+
+    return {
+        count: result.count,
+        nextOffset,
+        users: result.rows,
+    };
+};

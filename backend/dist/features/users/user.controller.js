@@ -113,3 +113,47 @@ export const uploadUserImage = (req, res, next) => {
         next(error);
     }
 };
+export const getUserListold = async (req, res, next) => {
+    try {
+        // Step 1: Logged-in user check (JWT se)
+        const userId = req.user?.id;
+        if (!userId)
+            throw new ApiError("Unauthorized access", 401);
+        // Step 5: DB call
+        // const data = await UserService.getUserList({
+        //     page: Number(req.query.page),
+        //     limit: Number(req.query.limit),
+        //     search: req.query.search as string,
+        // });
+        // Step 6: Response
+        // res.status(200).json({
+        //     success: true,
+        //     message: "User list fetched successfully",
+        //     data,
+        // });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+export const getUserList = async (req, res, next) => {
+    try {
+        const data = await UserService.getUserListService({
+            limit: Number(req.query.limit),
+            offset: Number(req.query.offset),
+            sort: req.query.sort,
+            order: req.query.order,
+            keyword: req.query.keyword,
+            startDate: req.query.startDate,
+            endDate: req.query.endDate,
+        });
+        res.status(200).json({
+            success: true,
+            message: "Users fetched successfully",
+            data,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};

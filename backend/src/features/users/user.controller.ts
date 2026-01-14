@@ -5,7 +5,7 @@ import ApiError from "../../utils/ApiError.js";
 import * as UserService from "./user.service.js";
 import Helper from "../../utils/helper.js";
 import { User, UserRole } from "./user.model.js";
-import { Op } from "sequelize";
+
 
 export const signup = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -149,63 +149,22 @@ export const getUserListold = async (req: Request, res: Response, next: NextFunc
 
 export const getUserList = async (req: Request, res: Response, next: NextFunction) => {
     try {
+        const data = await UserService.getUserListService({
+            limit: Number(req.query.limit),
+            offset: Number(req.query.offset),
+            sort: req.query.sort as string,
+            order: req.query.order as "ASC" | "DESC",
+            keyword: req.query.keyword as string,
+            startDate: req.query.startDate as string,
+            endDate: req.query.endDate as string,
+        });
 
-        const {
-            limit = 10,
-            offset = 0,
-            sort = 'created_at',
-            order = 'ASC',
-            keyword = '',
-            startDate = null,
-            endDate = null
-        } = req.query
-        const parsedLimit  = Number(limit)
-        const parsedOffset = Number(offset) * parsedLimit
-
-        // Build where clause for keyword search
-        let where: any = {}
-        if (keyword) {
-            where = {
-                [Op.or]: [
-                    { name: { [Op.like]: `%${keyword}%` } },
-                    { code: { [Op.like]: `%${keyword}%` } },
-                    { color_code: { [Op.like]: `%${keyword}%` } }
-                ]
-            }
-        }
-
-        // Exclude deleted lounges
-        where.status = { [Op.ne]: 'DELETED' }
-
-        // Add date range filter if provided
-        if (startDate || endDate) {
-            where.created_at = {}
-            if (startDate && !isNaN(Date.parse(startDate as string))) {
-                where.created_at[Op.gte] = new Date(startDate as string)
-            }
-            if (endDate && !isNaN(Date.parse(endDate as string))) {
-                where.created_at[Op.lte] = new Date(endDate as string)
-            }
-            if (Object.keys(where.created_at).length === 0) {
-                delete where.created_at
-            }
-        }
-
-        const users = await User.findAndCountAll({
-            where,
-            limit: parsedLimit,
-            offset: parsedOffset,
-            order: [[sort as string, (order as string).toUpperCase() === 'ASC' ? 'ASC' : 'DESC']]
-        })
-
-        const nextOffset = parsedOffset + parsedLimit < users.count ? Number(offset) + 1 : -1
-
-        return res.status(200).json({
-            count: users.count,
-            nextOffset,
-            users: users.rows
-        })
+        res.status(200).json({
+            success: true,
+            message: "Users fetched successfully",
+            data,
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'Failed to fetch users', error })
+        next(error);
     }
 }

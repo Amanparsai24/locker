@@ -15,7 +15,7 @@ interface UserAttributes {
   password: string;
   phone?: string;
   photo?: string;
-  status: number; // 0 | 1 | 2
+  status: number; // 0 = inactive | 1 = active | 2 = deleted   
 }
 
 interface UserCreation
