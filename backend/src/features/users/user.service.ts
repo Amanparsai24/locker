@@ -58,7 +58,7 @@ export const getUserListService = async (params: GetUserListInput) => {
     const {
         limit = 10,
         offset = 0,
-        sort = "created_at",
+        sort = "createdAt",
         order = "ASC",
         keyword = "",
         startDate = null,
@@ -75,7 +75,7 @@ export const getUserListService = async (params: GetUserListInput) => {
 
     };
 
-    // 🔍 Keyword search
+    // Keyword search
     if (keyword) {
         where[Op.or] = [
             { name: { [Op.like]: `%${keyword}%` } },
@@ -83,20 +83,20 @@ export const getUserListService = async (params: GetUserListInput) => {
         ];
     }
 
-    // 📅 Date range filter
+    // Date range filter
     if (startDate || endDate) {
-        where.created_at = {};
+        where.createdAt = {};
 
         if (startDate && !isNaN(Date.parse(startDate))) {
-            where.created_at[Op.gte] = new Date(startDate);
+            where.createdAt[Op.gte] = new Date(startDate);
         }
 
         if (endDate && !isNaN(Date.parse(endDate))) {
-            where.created_at[Op.lte] = new Date(endDate);
+            where.createdAt[Op.lte] = new Date(endDate);
         }
 
-        if (Object.keys(where.created_at).length === 0) {
-            delete where.created_at;
+        if (Object.keys(where.createdAt).length === 0) {
+            delete where.createdAt;
         }
     }
 
@@ -106,14 +106,15 @@ export const getUserListService = async (params: GetUserListInput) => {
         limit: parsedLimit,
         offset: parsedOffset,
         order: [[sort, order === "ASC" ? "ASC" : "DESC"]],
+        attributes: { exclude: ['password'] },
+        // attributes: ['id', 'name'],
     });
 
-    const nextOffset =
-        parsedOffset + parsedLimit < result.count ? offset + 1 : -1;
+    const nextOffset = parsedOffset + parsedLimit < result.count ? offset + 1 : -1;
 
     return {
         count: result.count,
         nextOffset,
-        users: result.rows,
+        list: result.rows,
     };
 };

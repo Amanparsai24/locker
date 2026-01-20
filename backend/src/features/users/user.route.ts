@@ -14,5 +14,6 @@ router.post("/login", UserController.login);
 router.get("/me", authMiddleware, UserController.getMe);
 router.post("/adduser", authMiddleware, UserController.createUser);
 router.post("/userphoto", authMiddleware, uploadUserImage.single("file"), UserController.uploadUserImage);
+router.get("/getuser", authMiddleware, UserController.getUserList);
 
 export default router;

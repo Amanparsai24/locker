@@ -19,12 +19,11 @@ interface UserAttributes {
 }
 
 interface UserCreation
-  extends Optional<UserAttributes, "id" | "phone" | "photo"> {}
+  extends Optional<UserAttributes, "id" | "phone" | "photo"> { }
 
 export class User
   extends Model<UserAttributes, UserCreation>
-  implements UserAttributes
-{
+  implements UserAttributes {
   declare id: number;
   declare role: UserRole;
   declare name: string;
@@ -61,5 +60,6 @@ User.init(
     sequelize,
     tableName: "users",
     timestamps: true,
+    underscored: false,
   }
 );

@@ -139,19 +139,15 @@ export const getUserListold = async (req, res, next) => {
 export const getUserList = async (req, res, next) => {
     try {
         const data = await UserService.getUserListService({
-            limit: Number(req.query.limit),
-            offset: Number(req.query.offset),
+            limit: req.query.limit ? Number(req.query.limit) : 10,
+            offset: req.query.offset ? Number(req.query.offset) : 0,
             sort: req.query.sort,
             order: req.query.order,
             keyword: req.query.keyword,
             startDate: req.query.startDate,
             endDate: req.query.endDate,
         });
-        res.status(200).json({
-            success: true,
-            message: "Users fetched successfully",
-            data,
-        });
+        res.status(200).json({ ...data });
     }
     catch (error) {
         next(error);

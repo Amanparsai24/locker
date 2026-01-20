@@ -67,7 +67,7 @@ const AddEdit = ({ open, onClose, initialData }: AddEditUserProps) => {
           password: data.password,
           role: data.role,
           phone: data.phone,
-          photo: uploadedPhoto, // ✅ filename only
+          photo: uploadedPhoto, // filename only
         },
         id: "submit-btn",
       });

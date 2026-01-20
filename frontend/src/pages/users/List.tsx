@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Table from "../../components/table/Table";
 import { useExpenseStore } from "../../store/expenseStore";
+import WebService from "../../utility/WebService";
 
 interface Expense {
   id: string;
@@ -10,9 +11,21 @@ interface Expense {
   date: string;
 }
 
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "USER";
+
+export interface UserFormData {
+  name: string;
+  email: string;
+  password?: string;
+  role: UserRole;
+  phone?: string;
+  photo?: string;
+}
+
 const List = () => {
   const { expenses, removeExpense } = useExpenseStore();
   const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   const pageSize = 10;
   const start = (page - 1) * pageSize;
@@ -47,6 +60,25 @@ const List = () => {
       ),
     },
   ];
+
+  useEffect(() => {
+    getlist();
+  }, []);
+
+  const getlist = async () => {
+    setLoading(true);
+    try {
+      await WebService.getAPI<{ result: UserFormData }>("users/getuser")
+        .then((res) => {
+          console.log(res, "res")
+        })
+        .catch();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <Table
